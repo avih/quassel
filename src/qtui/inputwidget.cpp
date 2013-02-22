@@ -101,9 +101,14 @@ InputWidget::InputWidget(QWidget *parent)
 
     UiSettings s("InputWidget");
 
-#ifdef HAVE_KDE
+#ifdef HAVE_SPELLER
     s.notify("EnableSpellCheck", this, SLOT(setEnableSpellCheck(QVariant)));
     setEnableSpellCheck(s.value("EnableSpellCheck", false));
+
+#  ifdef CUSTOM_SPELLER
+    s.notify("EnableThesaurus", this, SLOT(setEnableThesaurus(QVariant)));
+    setEnableThesaurus(s.value("EnableThesaurus", false));
+#  endif
 #endif
 
     s.notify("EnableEmacsMode", this, SLOT(setEnableEmacsMode(QVariant)));
@@ -175,6 +180,12 @@ void InputWidget::setCustomFont(const QVariant &v)
 void InputWidget::setEnableSpellCheck(const QVariant &v)
 {
     ui.inputEdit->setSpellCheckEnabled(v.toBool());
+}
+
+
+void InputWidget::setEnableThesaurus(const QVariant &v)
+{
+  ui.inputEdit->setThesaurusEnabled(v.toBool());
 }
 
 

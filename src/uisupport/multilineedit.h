@@ -24,7 +24,10 @@
 #include <QKeyEvent>
 #include <QHash>
 
-#ifdef HAVE_KDE4
+#if defined CUSTOM_SPELLER
+#  include "speller/speller_qtextedit.h"
+#  define MultiLineEditParent Speller_QTextEdit
+#elif defined HAVE_KDE4
 #  include <KDE/KTextEdit>
 #  define MultiLineEditParent KTextEdit
 #elif defined HAVE_KF5
@@ -82,6 +85,7 @@ public slots:
     void setEmacsMode(bool enable = true);
     void setScrollBarsEnabled(bool enable = true);
     void setSpellCheckEnabled(bool enable = true);
+    void setThesaurusEnabled(bool enable = true);
     void setPasteProtectionEnabled(bool enable = true, QWidget *msgBoxParent = 0);
     void setLineWrapEnabled(bool enable = false);
 

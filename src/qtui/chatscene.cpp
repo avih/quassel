@@ -57,6 +57,10 @@
 #include "chatviewsettings.h"
 #include "webpreviewitem.h"
 
+#ifdef CUSTOM_SPELLER
+#include "../uisupport/speller/speller_adapter.h"
+#endif
+
 const qreal minContentsWidth = 200;
 
 ChatScene::ChatScene(QAbstractItemModel *model, const QString &idString, qreal width, ChatView *parent)
@@ -79,6 +83,10 @@ ChatScene::ChatScene(QAbstractItemModel *model, const QString &idString, qreal w
     _clickMode(NoClick),
     _clickHandled(true),
     _leftButtonPressed(false)
+#ifdef CUSTOM_SPELLER
+    ,_pSpeller(&theSpeller)//(void*)SharedSpeller.Get("INPUT_WIDGET"))
+#endif
+
 {
     MessageFilter *filter = qobject_cast<MessageFilter *>(model);
     if (filter && filter->isSingleBufferFilter()) {
@@ -139,6 +147,9 @@ ChatScene::ChatScene(QAbstractItemModel *model, const QString &idString, qreal w
 
 ChatScene::~ChatScene()
 {
+#ifdef CUSTOM_SPELLER
+    _pSpeller=NULL;//(void*)SharedSpeller.Release("INPUT_WIDGET");
+#endif
 }
 
 
@@ -843,6 +854,49 @@ void ChatScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     if ((_firstColHandlePos != _defaultFirstColHandlePos) || (_secondColHandlePos != _defaultSecondColHandlePos) ||
         (_firstColHandlePos <= 10) || (_secondColHandlePos - _firstColHandlePos <= 10))
         menu.addAction(new Action(tr("Reset Column Widths"), &menu, this, SLOT(resetColumnWidths()), 0));
+
+#ifdef CUSTOM_SPELLER
+    static const int MAX_SUBMENU_ITEMS=15;// Max number of different meanings (submenues) to display
+    static const int MAX_WORDS_PREVIEW=10;// Max alts displayed for a single meaning (single menu item).
+
+    SpellCheck_Adapter* pSpeller = (SpellCheck_Adapter*)_pSpeller;
+
+    QString word=selection().trimmed();
+    if (word.length()
+        && isPosOverSelection(pos) // Follow ChatScene convention and show item-specific context only when over selection
+        && pSpeller && pSpeller->isSupported("THESAURUS") && pSpeller->isThesaurusEnabled()){
+    
+        menu.addSeparator();
+    
+        QString actual, changedMarker;
+        QList<QStringList> alts = pSpeller->getThesaurusSuggestions(word, &actual);
+        if(actual != word)
+            changedMarker="->";
+        
+        QString lang = pSpeller->isSupported("MULTI_LANG") ?
+                         (QString("[")+pSpeller->getCurrentLanguage()+"] ")
+                         : "";
+    
+        if (!alts.length()) {
+            //selection can be very long, don't display it, just the result.
+            menu.addAction(lang+tr("Thesaurus: < None >"))->setEnabled(false);
+    
+        } else {
+            //qDebug("Got %d thes meanings (displaying max %d lines with max %d in each)", alts.length(), MAX_SUBMENU_ITEMS, MAX_WORDS_PREVIEW);
+            
+            QMenu *thes = new QMenu(QString()+" > "+lang+tr("Thesaurus")+" "+changedMarker+"'"+actual+"': "+alts.at(0).at(1)+", ...", &menu);
+            menu.addMenu(thes);
+            
+            for(int i=0; i<std::min(MAX_SUBMENU_ITEMS, alts.length()); i++){
+               QString item=alts.at(i).at(0);
+               for(int j=2; j<std::min(MAX_WORDS_PREVIEW+1, alts.at(i).length()); j++)
+                   item+=QString(", ")+alts.at(i).at(j);
+               
+               thes->addAction(item)->setEnabled(false);
+            }
+        }
+    }
+#endif
 
     menu.exec(event->screenPos());
 }

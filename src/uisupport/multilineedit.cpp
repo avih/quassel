@@ -29,10 +29,28 @@
 #include "multilineedit.h"
 #include "tabcompleter.h"
 
+#include "uisettings.h"
+
 const int leftMargin = 3;
 
+void saveCustomSpellerLang(const QString& lang){
+  qDebug("Saving custom speller lang: %s", lang.toLocal8Bit().data());
+  UiSettings("InputWidget").setValue("CustomSpellerLang", lang);
+}
+
+QString loadCustomSpellerLang(){
+  QString res=UiSettings("InputWidget").value("CustomSpellerLang").toString();
+  qDebug("Loaded custom speller lang: %s", res.toLocal8Bit().data());
+  return res;
+}
+
 MultiLineEdit::MultiLineEdit(QWidget *parent)
-    : MultiLineEditParent(parent),
+    : MultiLineEditParent(parent
+#ifdef CUSTOM_SPELLER
+                          , loadCustomSpellerLang()
+                          , saveCustomSpellerLang
+#endif
+                          ),
     _idx(0),
     _mode(SingleLine),
     _singleLine(true),
@@ -208,8 +226,16 @@ void MultiLineEdit::setEmacsMode(bool enable)
 
 void MultiLineEdit::setSpellCheckEnabled(bool enable)
 {
-#ifdef HAVE_KDE
+#ifdef HAVE_SPELLER
     setCheckSpellingEnabled(enable);
+#else
+    Q_UNUSED(enable)
+#endif
+}
+
+void MultiLineEdit::setThesaurusEnabled(bool enable) {
+#ifdef CUSTOM_SPELLER
+    enableThesaurus(enable);
 #else
     Q_UNUSED(enable)
 #endif

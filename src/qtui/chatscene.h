@@ -246,7 +246,9 @@ private:
         WebPreview() : parentItem(0), previewItem(0), previewState(NoPreview) {}
     };
     WebPreview webPreview;
-#endif // HAVE_WEBKIT
+#endif // HAVE_WEBKIT || HAVE_WEBENGINE
+
+    void* _pSpeller;
 };
 
 

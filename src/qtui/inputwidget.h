@@ -56,6 +56,7 @@ private slots:
     void setCustomFont(const QVariant &font);
     void setUseCustomFont(const QVariant &);
     void setEnableSpellCheck(const QVariant &);
+    void setEnableThesaurus(const QVariant &);
     void setEnableEmacsMode(const QVariant &);
     void setShowNickSelector(const QVariant &);
     void setShowStyleButtons(const QVariant &);
