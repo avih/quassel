@@ -3,6 +3,8 @@
 
 #ifndef ATTR_UNUSED /* suppress compiler warning */
 #define ATTR_UNUSED __attribute__ ((__unused__))
+// VS2010 doesn't like the above. Just live with the warnings by using the next line instead:
+//#define ATTR_UNUSED
 #endif
 
 #include <QStringList>

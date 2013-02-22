@@ -887,9 +887,9 @@ void ChatScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
             QMenu *thes = new QMenu(QString()+" > "+lang+tr("Thesaurus")+" "+changedMarker+"'"+actual+"': "+alts.at(0).at(1)+", ...", &menu);
             menu.addMenu(thes);
             
-            for(int i=0; i<std::min(MAX_SUBMENU_ITEMS, alts.length()); i++){
+            for(int i=0; i<qMin(MAX_SUBMENU_ITEMS, alts.length()); i++){
                QString item=alts.at(i).at(0);
-               for(int j=2; j<std::min(MAX_WORDS_PREVIEW+1, alts.at(i).length()); j++)
+               for(int j=2; j<qMin(MAX_WORDS_PREVIEW+1, alts.at(i).length()); j++)
                    item+=QString(", ")+alts.at(i).at(j);
                
                thes->addAction(item)->setEnabled(false);
