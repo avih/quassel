@@ -42,6 +42,55 @@ if (WITH_KDE4)
     set(SOURCES ${SOURCES} kcmdlinewrapper.cpp)
 endif()
 
+if(CUSTOM_SPELLER)
+    set(SOURCES ${SOURCES}
+        speller/speller_qtextedit.cpp
+        speller/hunspell_adapter.cpp
+
+        ../ext/hunspell/affentry.cxx
+        ../ext/hunspell/affixmgr.cxx
+        ../ext/hunspell/csutil.cxx
+        ../ext/hunspell/dictmgr.cxx
+        ../ext/hunspell/filemgr.cxx
+        ../ext/hunspell/hashmgr.cxx
+        ../ext/hunspell/hunspell.cxx
+        ../ext/hunspell/hunzip.cxx
+        ../ext/hunspell/phonet.cxx
+        ../ext/hunspell/replist.cxx
+        ../ext/hunspell/suggestmgr.cxx
+
+        ../ext/mythes/mythes.cxx
+    )
+    set(MOC_HDRS ${MOC_HDRS}
+        speller/speller_qtextedit.h
+    )
+    set(HEADERS ${HEADERS}
+        speller/speller_adapter.h
+
+        ../ext/hunspell/affentry.hxx
+        ../ext/hunspell/affixmgr.hxx
+        ../ext/hunspell/atypes.hxx
+        ../ext/hunspell/baseaffix.hxx
+        ../ext/hunspell/config.h
+        ../ext/hunspell/csutil.hxx
+        ../ext/hunspell/dictmgr.hxx
+        ../ext/hunspell/filemgr.hxx
+        ../ext/hunspell/hashmgr.hxx
+        ../ext/hunspell/htypes.hxx
+        ../ext/hunspell/hunspell.h
+        ../ext/hunspell/hunspell.hxx
+        ../ext/hunspell/hunvisapi.h
+        ../ext/hunspell/hunzip.hxx
+        ../ext/hunspell/langnum.hxx
+        ../ext/hunspell/phonet.hxx
+        ../ext/hunspell/replist.hxx
+        ../ext/hunspell/suggestmgr.hxx
+        ../ext/hunspell/w_char.hxx
+
+        ../ext/mythes/mythes.hxx
+    )
+endif(CUSTOM_SPELLER)
+
 include_directories(${CMAKE_SOURCE_DIR}/src/common
                     ${CMAKE_SOURCE_DIR}/src/client
 )

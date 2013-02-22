@@ -58,6 +58,42 @@
     </widget>
    </item>
    <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <spacer name="thesaurusSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>16</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="enableThesaurus">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Also Enable Thesaurus (input and chat window)</string>
+       </property>
+       <property name="settingsKey" stdset="0">
+        <string notr="true">EnableThesaurus</string>
+       </property>
+       <property name="defaultValue" stdset="0">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QCheckBox" name="enablePerBufferHistory">
      <property name="text">
       <string>Enable per chat history</string>
@@ -331,7 +367,6 @@
  </customwidgets>
  <tabstops>
   <tabstop>customFont</tabstop>
-  <tabstop>enableSpellCheck</tabstop>
   <tabstop>showNickSelector</tabstop>
   <tabstop>groupBox</tabstop>
   <tabstop>maxNumLines</tabstop>
@@ -353,6 +388,22 @@
     <hint type="destinationlabel">
      <x>305</x>
      <y>17</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>enableSpellCheck</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>enableThesaurus</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>253</x>
+     <y>42</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>253</x>
+     <y>65</y>
     </hint>
    </hints>
   </connection>

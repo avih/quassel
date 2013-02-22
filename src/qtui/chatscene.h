@@ -271,6 +271,8 @@ private:
     };
     WebPreview webPreview;
 #endif // HAVE_WEBKIT || HAVE_WEBENGINE
+
+    void* _pSpeller;
 };
 
 
