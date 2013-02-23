@@ -239,7 +239,7 @@ QList<QStringList> getThesSuggestions(MyThes* pMT, const QString& word, Hunspell
   mentry* pm = pmean;
   if (count) {
     for (int  i=0; i < count; i++) {
-      QStringList meaning; meaning << pm->defn;
+      QStringList meaning; meaning << QString(pm->defn).trimmed();
       for (int j=0; j < pm->count; j++) {
         char ** gen;
         int l = 0;
@@ -250,12 +250,12 @@ QList<QStringList> getThesSuggestions(MyThes* pMT, const QString& word, Hunspell
           int k;
           for (k = 0; k < l; k++)
             if (!meaning.contains(gen[k]))
-              meaning << gen[k];
+              meaning << QString(gen[k]).trimmed();
 
           myfreelist(&gen, l);
         } else
           if (!meaning.contains(pm->psyns[j]))
-            meaning << pm->psyns[j];
+            meaning << QString(pm->psyns[j]).trimmed();
       }
 
       pm++;
@@ -331,8 +331,13 @@ void Hunspell_Adapter::setLanguage(const QString& lang){
 
     pThes=createNewThesaurus(currentLang);
 
-    if(pThes)
+    if(pThes){
       qDebug("Thes ok, encoding: %s\n", pThes->get_th_encoding());
+      this->_thesaurusAvailable = true;
+    } else {
+      qDebug("Thes not available for lang\n");
+      this->_thesaurusAvailable = false;
+    }
 
     QString encoding=pSpeller->get_dic_encoding();
     m_codec = QTextCodec::codecForName(encoding.toLatin1());
@@ -344,17 +349,18 @@ bool Hunspell_Adapter::isWordSpelledOk(const QString& word){
     return !pSpeller || pSpeller->spell(m_codec->fromUnicode(word));
 }
 
-QList<SpellCheck_Adapter::Range> Hunspell_Adapter::getErrorRanges(const QString& text, QTextDocument *document ATTR_UNUSED){
-    QList<Range> result, words = getWordsLocations(text);
+QList<SpellCheck_Adapter::Range> Hunspell_Adapter::getErrorRanges(const QString& text, QTextDocument *document){
+  Q_UNUSED(document);
+  QList<Range> result, words = getWordsLocations(text);
 
-    if (!pSpeller || text.simplified().isEmpty())
-        return result;
-
-    for(int i=0; i<words.length(); i++)
-      if(!isWordSpelledOk(text.mid(words.at(i).index, words.at(i).length )))
-          result.append(words.at(i));
-
+  if (!pSpeller || text.simplified().isEmpty())
     return result;
+
+  for(int i=0; i<words.length(); i++)
+    if(!isWordSpelledOk(text.mid(words.at(i).index, words.at(i).length )))
+      result.append(words.at(i));
+
+  return result;
 }
 
 QList<QStringList> Hunspell_Adapter::getThesaurusSuggestions(const QString& word, QString* out_actualWord){
@@ -381,11 +387,13 @@ QStringList Hunspell_Adapter::getSpellingSuggestions(const QString& word){
 }
 
 /*
+// user dictionary is unsupported for now
 void Hunspell_Adapter::addWord( const QString &word, QTextDocument *document ATTR_UNUSED){
 }
 */
 
-void Hunspell_Adapter::ignoreWord(const QString& word, QTextDocument *document ATTR_UNUSED){
+void Hunspell_Adapter::ignoreWord(const QString& word, QTextDocument *document){
+  Q_UNUSED(document);
   if(pSpeller)
     pSpeller->add(m_codec->fromUnicode(word));
 }
