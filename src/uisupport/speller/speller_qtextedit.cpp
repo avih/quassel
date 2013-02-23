@@ -267,7 +267,7 @@ void Speller_QTextEdit::enableThesaurus(bool enable){
 //#include "quassel.h"
 void Speller_QTextEdit::spellerContextAction(QAction *action){
 
-  qDebug("Action*: %x, replaceActions.length(): %d", (unsigned int)action, replaceWordActions.length());
+    qDebug("Action*: %p, replaceActions.length(): %d", (unsigned int)action, replaceWordActions.length());
     if (action == ignoreWordAction) {
         qDebug("Context -> Ignore");
         pSpeller->ignoreWord(currentWord);

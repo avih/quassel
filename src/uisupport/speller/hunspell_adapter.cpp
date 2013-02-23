@@ -103,7 +103,7 @@ Hunspell* Hunspell_Adapter::createNewSpeller(const QString& lang){
     QFileInfo fd(dic);
 
     if (!(fa.exists() && fa.isReadable() && fd.exists() && fd.isReadable())){
-        qDebug("issue with dict file for lang %s", lang.toLocal8Bit().data());
+        qDebug("issue with dict file for lang %s (trying %s, %s)", lang.toLocal8Bit().data(), dic.toLatin1().data(), aff.toLatin1().data());
         return 0;
     }
 
