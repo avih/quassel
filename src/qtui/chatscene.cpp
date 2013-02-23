@@ -864,34 +864,38 @@ void ChatScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QString word=selection().trimmed();
     if (word.length()
         && isPosOverSelection(pos) // Follow ChatScene convention and show item-specific context only when over selection
-        && pSpeller && pSpeller->isSupported("THESAURUS") && pSpeller->isThesaurusEnabled()){
+        && pSpeller && pSpeller->isThesaurusEnabled()){
     
         menu.addSeparator();
     
         QString actual, changedMarker;
         QList<QStringList> alts = pSpeller->getThesaurusSuggestions(word, &actual);
         if(actual != word)
-            changedMarker="->";
+            changedMarker="> ";
         
         QString lang = pSpeller->isSupported("MULTI_LANG") ?
                          (QString("[")+pSpeller->getCurrentLanguage()+"] ")
                          : "";
     
-        if (!alts.length()) {
-            //selection can be very long, don't display it, just the result.
-            menu.addAction(lang+tr("Thesaurus: < None >"))->setEnabled(false);
-    
+        if (!(pSpeller->isThesaurusAvailable())) {
+            menu.addAction(lang+tr("< Thesaurus not available >"))->setEnabled(false);
+        } else if (!alts.length()) {
+                //selection can be long, possibly truncate.
+                menu.addAction(lang+(word.length()<15?word:word.mid(0,12)+"...")+tr(" : < None >"))->setEnabled(false);
         } else {
             //qDebug("Got %d thes meanings (displaying max %d lines with max %d in each)", alts.length(), MAX_SUBMENU_ITEMS, MAX_WORDS_PREVIEW);
-            
-            QMenu *thes = new QMenu(QString()+" > "+lang+tr("Thesaurus")+" "+changedMarker+"'"+actual+"': "+alts.at(0).at(1)+", ...", &menu);
+            bool more = false;
+            QString sample = pSpeller->strFromList(pSpeller->getThesaurusSuggestionSample(word, alts, 2, &more));
+            QString menuText = QString()+lang+" "+changedMarker+actual+" > "+sample+(more?", ...":".");
+            QMenu *thes = new QMenu(menuText, &menu);
+            // We display the subitems even if the sample covers them (more==false) since they convey more info.
             menu.addMenu(thes);
-            
+
             for(int i=0; i<qMin(MAX_SUBMENU_ITEMS, alts.length()); i++){
                QString item=alts.at(i).at(0);
                for(int j=2; j<qMin(MAX_WORDS_PREVIEW+1, alts.at(i).length()); j++)
                    item+=QString(", ")+alts.at(i).at(j);
-               
+
                thes->addAction(item)->setEnabled(false);
             }
         }

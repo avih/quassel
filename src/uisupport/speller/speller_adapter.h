@@ -1,12 +1,6 @@
 #ifndef _SPELLCHECK_ADAPTER_H
 #define _SPELLCHECK_ADAPTER_H
 
-#ifndef ATTR_UNUSED /* suppress compiler warning */
-#define ATTR_UNUSED __attribute__ ((__unused__))
-// VS2010 doesn't like the above. Just live with the warnings by using the next line instead:
-//#define ATTR_UNUSED
-#endif
-
 #include <QStringList>
 class QTextDocument;
 
@@ -18,12 +12,12 @@ public:
         int index;
         int length;
 
-        Range(const Range& range)  :index(range.index), length(range.length){}
-        Range(int index, int length) :index(index), length(length){}
+        Range(const Range& other) : index(other.index), length(other.length){}
+        Range(int index, int length) : index(index), length(length){}
         bool operator==(const Range &other) const {return (index == other.index && length == other.length);}
     };
 
-    SpellCheck_Adapter():_thesaurusEnabled(false), _spellerEnabled(false){}
+    SpellCheck_Adapter() : _spellerEnabled(false), _thesaurusEnabled(false), _thesaurusAvailable(false){}
     virtual ~SpellCheck_Adapter(){}
 
     virtual void enableSpeller(bool enable=true){_spellerEnabled=enable;}   //false would release resources used by speller/thesaurus.
@@ -36,7 +30,7 @@ public:
     virtual QString     getCurrentLanguage(){return "";}
 
     //constructed without initial language, so must invoke this to be usable.
-    virtual void        setLanguage(const QString& langCode ATTR_UNUSED){}
+    virtual void        setLanguage(const QString& langCode){Q_UNUSED(langCode);}
 
     //mandatory, should be relatively fast (used synchronously to highlight typos as-you-type). document might be useful.
     virtual QList<Range> getErrorRanges(const QString& text, QTextDocument *document=0) =0;
@@ -45,27 +39,33 @@ public:
     virtual QStringList getSpellingSuggestions(const QString& word) =0;
 
     //implement and forward if the speller supports learning huristics
-    virtual void        suggestionAccepted(const QString& suggestion ATTR_UNUSED, const QString& forWord ATTR_UNUSED){}
+    virtual void        suggestionAccepted(const QString& suggestion, const QString& forWord)
+      {Q_UNUSED(suggestion); Q_UNUSED (forWord);}
 
     //possible properties: IGNORE_WORD, ADD_WORD, THESAURUS, MULTI_LANG (=Can switch languages).
     // supported options are usully reflected at the context menu.
-    virtual bool        isSupported(const QString& propertyName ATTR_UNUSED){return false;}
+    virtual bool        isSupported(const QString& propertyName){Q_UNUSED(propertyName); return false;}
 
     //temporarily accept word as valid (till this object dies). document might be useful.
-    virtual void        ignoreWord(const QString& word ATTR_UNUSED, QTextDocument *document ATTR_UNUSED=0){}
+    virtual void        ignoreWord(const QString& word, QTextDocument *document=0)
+      {Q_UNUSED(word); Q_UNUSED(document);}
 
     //add word to user's dictionary
-    virtual void        addWord(const QString& word ATTR_UNUSED){}
+    virtual void        addWord(const QString& word){Q_UNUSED(word);}
 
 
     //Thesaurus methods (valid when isSupported("THESAURUS") is true).
     virtual void enableThesaurus(bool enable=true){_thesaurusEnabled=enable;}
-    virtual bool isThesaurusEnabled(){return isSpellerEnabled() && isSupported("THESAURUS") && _thesaurusEnabled;}
+    virtual bool isThesaurusEnabled(){return isSpellerEnabled()
+                                             && isSupported("THESAURUS")
+                                             && _thesaurusEnabled;}
+    virtual bool isThesaurusAvailable(){return isThesaurusEnabled() && _thesaurusAvailable;}
     //Each list starts with the meaning name, and then the alternatives.
-    virtual QList<QStringList> getThesaurusSuggestions(const QString& word ATTR_UNUSED, QString* out_actualWord ATTR_UNUSED=0){return QList<QStringList>();}
+    virtual QList<QStringList> getThesaurusSuggestions(const QString& word, QString* out_actualWord=0)
+      {Q_UNUSED(word); Q_UNUSED(out_actualWord); return QList<QStringList>();}
 
 
-    //utility (for external/derived), possibly overridden with better algo or more suitible algo for a specific implementation.
+    //utilities (for external/derived), possibly overridden with better algo or more suitible algo for a specific implementation.
     virtual QList<Range> getWordsLocations(const QString& text){
         QString _text=text+" "; // removes the need for EOL logic. Probably not a good tradeoff if text is very long (since it's copied here).
         QList<Range> result;
@@ -78,10 +78,45 @@ public:
         return result;
     }
 
-private:
-    volatile bool _thesaurusEnabled;
-    volatile bool _spellerEnabled;
+    // Useful for use as a sample from available suggestions (e.g. for top-level popup menu)
+    // Tries to return different meanings before different suggestions per meaning.
+    // Words are unique, and different than the original word.
+    virtual QStringList getThesaurusSuggestionSample(const QString& originalWord,
+                                                     const QList<QStringList>& suggestions,
+                                                     int upToCount,
+                                                     bool* out_moreAvailable=0){
+        QStringList result; // distinct words from the suggestions list
+        QStringList tmpLower; tmpLower << originalWord.toLower().trimmed(); // manages case insensitive uniqueness
+        if(out_moreAvailable) *out_moreAvailable = false;
+        for (int k=0; k<2; k++) // first iteration for different meanings, 2nd for the rest of the suggestions
+            for (int i = 0; i<suggestions.length(); i++)
+                for (int j = 1; j<suggestions.at(i).length(); j++)
+                    if(!tmpLower.contains(suggestions.at(i).at(j).toLower())) {
+                        if(result.length()>=upToCount){ // the '>' part guards negative upToCount
+                            if(out_moreAvailable) *out_moreAvailable = true;
+                            return result; // Enough words and we know moreAvailable's value
+                        }
+                        tmpLower << suggestions.at(i).at(j).toLower();
+                        result << suggestions.at(i).at(j);
+                        if(!k) break; // First iteration and we got a suggestion from this meaning. Skip to next meaning.
+                    }
 
+        return result;
+    }
+
+    virtual QString strFromList(const QStringList& list){
+        QString result = "";
+        for (int i = 0; i<list.length(); i++)
+            result += (i?", ":"") + list.at(i);
+        return result;
+    }
+
+private:
+    volatile bool _spellerEnabled; // For both speller and thesaurus
+    volatile bool _thesaurusEnabled;
+
+protected:
+    volatile bool _thesaurusAvailable; // If thesaurus files where found for current language
 };
 
 ///////////// Quassel specific ////////////////

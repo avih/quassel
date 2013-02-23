@@ -164,7 +164,7 @@ void Speller_QTextEdit::contextMenuEvent(QContextMenuEvent * e)
       const QStringList suggestions = pSpeller->getSpellingSuggestions(currentWord);
       qDebug("Got %d spelling suggestions", suggestions.length());
       if (suggestions.isEmpty()) {
-        menu->addAction(tr("< No Corrections: '")+dispWord+"' >")->setEnabled(false);
+          menu->addAction(QString()+"< " + tr("No Suggestions")+" >")->setEnabled(false);
       } else {
         int i=0;
           foreach (const QString &suggestion, suggestions){
@@ -177,12 +177,12 @@ void Speller_QTextEdit::contextMenuEvent(QContextMenuEvent * e)
 
       clearPermMenus();
       if(pSpeller->isSupported("IGNORE_WORD"))
-        menu->addAction(ignoreWordAction=new QAction(tr("Ignore temporarily: '")+dispWord+"'", this));
+        menu->addAction(ignoreWordAction=new QAction(tr("Ignore temporarily")+": "+dispWord, this));
       if(pSpeller->isSupported("ADD_WORD"))
-        menu->addAction(addWordAction=new QAction(tr("Add to Dictionary : '")+dispWord+"'", this));
+        menu->addAction(addWordAction=new QAction(tr("Add to Dictionary")+": "+dispWord, this));
 
 
-    } else if(pSpeller->isSupported("THESAURUS") && pSpeller->isThesaurusEnabled()){
+    } else if(pSpeller->isSupported("THESAURUS") && pSpeller->isThesaurusAvailable()){
       // no spelling error, try to invoke thesaurus, if exists (at its own sub menu from the normal menu)
 
       QList<SpellCheck_Adapter::Range> wordRanges=pSpeller->getWordsLocations(text);
@@ -195,21 +195,22 @@ void Speller_QTextEdit::contextMenuEvent(QContextMenuEvent * e)
       if(word.length()){
         QString actual, changedMarker;
         QList<QStringList> alts = pSpeller->getThesaurusSuggestions(word, &actual);
-        if(actual != word) changedMarker="->";
+        if(actual != word) changedMarker="> ";
 
         qDebug("Word: '%s': %d alts", actual.toLocal8Bit().data(), alts.length());
 
         if(!alts.length()){
           //no need for the shorter dispWord since we're here after no spelling errors found,
           //so it's not an endless string
-          menu->addAction(tr("Thesaurus")+" "+changedMarker+"'"+actual+"': < None >")->setEnabled(false);
-
+            menu->addAction(tr("Thesaurus")+": "+changedMarker+actual+": < "+tr("None")+" >")->setEnabled(false);
         } else {
           qDebug("Got %d thes meanings", alts.length());
           cursor.setPosition(wordRanges.at(wIx).index, QTextCursor::MoveAnchor);
           cursor.setPosition(wordRanges.at(wIx).index+wordRanges.at(wIx).length, QTextCursor::KeepAnchor);
-
-          QMenu *thes = new QMenu(QString()+" > "+tr("Thesaurus")+" "+changedMarker+"'"+actual+"': "+alts.at(0).at(1)+", ...", menu);
+          bool more = false;
+          QString list = pSpeller->strFromList(pSpeller->getThesaurusSuggestionSample(actual, alts, 2, &more));
+          QMenu *thes = new QMenu(
+            QString()+tr("Thesaurus")+": "+changedMarker+actual+" > "+list+(more?", ...":""), menu);
           menu->addMenu(thes);
 
           for(int i=0; i<qMin(MAX_SUBMENU_ITEMS, alts.length()); i++){
@@ -222,7 +223,7 @@ void Speller_QTextEdit::contextMenuEvent(QContextMenuEvent * e)
             QMenu *meaning = new QMenu(item, menu);
             for(int j=1; j<qMin(MAX_SUBMENU_ITEMS+1, alts.at(i).length()); j++)
               replaceWordActions << meaning->addAction(SUG_PREFIX+alts.at(i).at(j));
-            thes->addMenu(meaning);//->setEnabled(false);
+            thes->addMenu(meaning);
           }
         }
       }
