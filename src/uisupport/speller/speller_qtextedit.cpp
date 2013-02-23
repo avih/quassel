@@ -176,8 +176,10 @@ void Speller_QTextEdit::contextMenuEvent(QContextMenuEvent * e)
       menu->addSeparator();
 
       clearPermMenus();
-      menu->addAction(ignoreWordAction=new QAction(tr("Ignore temporarily: '")+dispWord+"'", this));
-      menu->addAction(addWordAction=new QAction(tr("Add to Dictionary : '")+dispWord+"'", this));
+      if(pSpeller->isSupported("IGNORE_WORD"))
+        menu->addAction(ignoreWordAction=new QAction(tr("Ignore temporarily: '")+dispWord+"'", this));
+      if(pSpeller->isSupported("ADD_WORD"))
+        menu->addAction(addWordAction=new QAction(tr("Add to Dictionary : '")+dispWord+"'", this));
 
 
     } else if(pSpeller->isSupported("THESAURUS") && pSpeller->isThesaurusEnabled()){
@@ -210,15 +212,15 @@ void Speller_QTextEdit::contextMenuEvent(QContextMenuEvent * e)
           QMenu *thes = new QMenu(QString()+" > "+tr("Thesaurus")+" "+changedMarker+"'"+actual+"': "+alts.at(0).at(1)+", ...", menu);
           menu->addMenu(thes);
 
-          for(int i=0; i<std::min(MAX_SUBMENU_ITEMS, alts.length()); i++){
+          for(int i=0; i<qMin(MAX_SUBMENU_ITEMS, alts.length()); i++){
             QString item=alts.at(i).at(0);
-            for(int j=2; j<std::min(MAX_WORDS_PREVIEW+1, alts.at(i).length()); j++)
+            for(int j=2; j<qMin(MAX_WORDS_PREVIEW+1, alts.at(i).length()); j++)
               item+=QString(", ")+alts.at(i).at(j);
             if(alts.at(i).length()>MAX_WORDS_PREVIEW+1 && MAX_WORDS_PREVIEW<MAX_SUBMENU_ITEMS)
               item+=", ...";
 
             QMenu *meaning = new QMenu(item, menu);
-            for(int j=1; j<std::min(MAX_SUBMENU_ITEMS+1, alts.at(i).length()); j++)
+            for(int j=1; j<qMin(MAX_SUBMENU_ITEMS+1, alts.at(i).length()); j++)
               replaceWordActions << meaning->addAction(SUG_PREFIX+alts.at(i).at(j));
             thes->addMenu(meaning);//->setEnabled(false);
           }
