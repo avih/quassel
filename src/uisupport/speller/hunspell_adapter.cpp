@@ -69,7 +69,7 @@ public:
     bool        isSupported( const QString& propertyName ){
         return (QStringList()
             <<"IGNORE_WORD"
-            <<"ADD_WORD"
+            //<<"ADD_WORD" //no user dictionary for now
             <<"THESAURUS"
             <<"MULTI_LANG"
         ).contains(propertyName);
@@ -380,8 +380,10 @@ QStringList Hunspell_Adapter::getSpellingSuggestions(const QString& word){
     return result;
 }
 
+/*
 void Hunspell_Adapter::addWord( const QString &word, QTextDocument *document ATTR_UNUSED){
 }
+*/
 
 void Hunspell_Adapter::ignoreWord(const QString& word, QTextDocument *document ATTR_UNUSED){
   if(pSpeller)
