@@ -864,7 +864,9 @@ void ChatScene::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
     QString word=selection().trimmed();
     if (word.length()
         && isPosOverSelection(pos) // Follow ChatScene convention and show item-specific context only when over selection
-        && pSpeller && pSpeller->isThesaurusEnabled()){
+        && pSpeller && pSpeller->isThesaurusEnabled()
+        && pSpeller->getCurrentLanguage()!="" && pSpeller->getAvailableLanguages().length()
+        ){
     
         menu.addSeparator();
     
