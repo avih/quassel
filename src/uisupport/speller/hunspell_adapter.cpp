@@ -8,6 +8,8 @@
 #include <QTextCharFormat>
 #include <QTextCodec>
 #include <QFileInfo>
+#include <QDir>
+#include <quassel.h> //For config and data dirs
 
 //search paths taken from hunspell/src/tools/hunspell.cxx.
 //OOODIR and USEROOODIR (open office) removed because seem quite deprecated.
@@ -50,7 +52,9 @@ private:
     MyThes*     createNewThesaurus(const QString& lang);
 
     QList<_LangData>    langData;  //available dictionaries/thesauri names/files
-    void                enumerateDictionaryFiles();
+    void                enumerateDictionaryFiles(bool forceRe=false);
+    bool m_dictsEnumerated;
+    QStringList m_langs;
 
 public:
     Hunspell_Adapter();
@@ -64,7 +68,7 @@ public:
     QStringList getSpellingSuggestions( const QString& word );
     QList<QStringList> getThesaurusSuggestions( const QString& word, QString* out_actualWord=0);
     void        ignoreWord( const QString &word, QTextDocument *document=0 );
-    void        addWord( const QString &word, QTextDocument *document=0 );
+    //void        addWord( const QString &word, QTextDocument *document=0 );
 
     bool        isSupported( const QString& propertyName ){
         return (QStringList()
@@ -77,28 +81,160 @@ public:
 };
 
 
-
 //const char* cs(QString s){return s.toLatin1().data();}
 
 typedef struct _LangData{
   QString name;
   QString dictFilesSansExt; //such that the full paths are dictFilesSansExt .dic/.aff
   QString thesFilesSansExt; //full paths are thesFilesSansExt .idx/.dat , Non existing thes -> empty
+  _LangData() : name(""), dictFilesSansExt(""), thesFilesSansExt(""){}
 } LangData;
 
+// Our canonical form is ab-XY (e.g. en-US). Try to detect it from filename.
+QString getNormalizedLang(const QString& canonicalFilename, bool isSpeller){
+    QString f = canonicalFilename;
+    if(f.lastIndexOf("/")>=0) f=f.mid(f.lastIndexOf("/")+1);
+    if(f.lastIndexOf(".") >0) f=f.mid(0, f.lastIndexOf("."));
+    if(!isSpeller && f.mid(0,3)=="th_") f=f.mid(3);
+    if(f[2]=='_') f[2]='-';
+    if((f.length()==5 || (f[5]=='_' && f[6]=='v' && f[7].isDigit())) && f[2]=='-')
+        f=f.mid(0,2).toLower()+"-"+f.mid(3,2).toUpper();
 
-void Hunspell_Adapter::enumerateDictionaryFiles(){
-  //QList<LangData> result;
-  langData.empty();
-  //TODO: blah blah blah
+    return f;
+}
+
+QString getCanonicalSansExt(const QString& canonicalFilename){
+    QString f(canonicalFilename);
+    if(f.lastIndexOf(".")>(f.lastIndexOf("/")+1))
+        f=f.mid(0,f.lastIndexOf("."));
+    return f;
+}
+
+int findLangItem(QList<_LangData>& current, const QString& lang){
+    for (int i = 0; i<current.length(); i++)
+        if(current[i].name==lang) return i;
+    return -1;
+}
+
+// Search order is from global (system) to local (user), so later data overrides earlier data.
+void newFilesFound(QList<_LangData>& current, const QString& canonicalFilename, bool isSpeller){ //!isSpeller is thesaurus
+    QString lang = getNormalizedLang(canonicalFilename, isSpeller);
+    int i = findLangItem(current, lang);
+    if(i<0) {
+        current.append(_LangData());
+        i=current.length()-1;
+        current[i].name = lang;
+    }
+    if(isSpeller) current[i].dictFilesSansExt = getCanonicalSansExt(canonicalFilename);
+    else          current[i].thesFilesSansExt = getCanonicalSansExt(canonicalFilename);
+}
+
+QString norPath(QString path){
+    path.replace('\\', '/');
+    return path.endsWith("/")?path:path+"/";
+}
+
+QStringList getSearchPaths() {
+    // system data dirs need to be searched at /myspell/dicts, /hunspell
+    // quassel and user data dirs need /dicts
+
+    // we create the list in order of descending importance,
+    // then filter for uniqueness at the same order (so more important override less imp.),
+    // then reverse such that the most important is last
+    QStringList tmpAll;
+    QStringList tmp;
+
+    // user dir, quassel data dirs
+    tmp.clear();
+    tmp << Quassel::configDirPath() // user's, add /dict
+        << Quassel::dataDirPaths(); // quassel specific, add /dict
+    for(int i=0; i<tmp.length(); i++){
+        tmpAll.append(norPath(tmp[i])+"dicts/");
+    }
+
+    // system data dirs
+    tmp.clear();
+    tmp.append(QString(::qgetenv("XDG_DATA_DIRS")).split(":", QString::SkipEmptyParts));
+    tmp << "/usr/local/share/"
+        << "/usr/share/";
+    for(int i=0; i<tmp.length(); i++){
+        tmpAll.append(norPath(tmp[i])+"hunspell/");
+        tmpAll.append(norPath(tmp[i])+"myspell/dicts/");
+    }
+
+    for(int i=0; i<tmpAll.length(); i++)
+        qDebug("tmp non unique [%d]: %s", i, tmpAll[i].toLatin1().data());
+
+    // make unique, earlier items preffered over later ones
+    tmp.clear();
+    for (int i=0; i<tmpAll.length(); i++)
+        if (!tmp.contains(tmpAll[i])) tmp.append(tmpAll[i]);
+
+    tmpAll.clear();
+    for(int i=tmp.length()-1; i>=0; i--)
+        if(QDir(tmp[i]).exists())
+            tmpAll.append(tmp[i]);
+
+    for(int i=0; i<tmpAll.length(); i++)
+        qDebug("unique, ascending [%d]: %s", i, tmpAll[i].toLatin1().data());
+
+    return tmpAll;
+}
+
+void Hunspell_Adapter::enumerateDictionaryFiles(bool forceRe){
+    if (!forceRe && m_dictsEnumerated)
+        return;
+    QList<_LangData> tmp;
+
+    QStringList paths = getSearchPaths();
+    for (int i=0; i<paths.length(); i++) {
+        QDir dir(paths[i]);
+        dir.setFilter(QDir::Files);
+        dir.setSorting(QDir::Name);//sort by name, such that xx_v2 comes after v1 | QDir::Reversed);
+        QStringList fspec;
+        QFileInfoList list;
+
+        for (int k=0; k<2; k++){ // first iteration for speller files(dic+aff), 2nd for thesaurus (dat+idx)
+            fspec.clear();
+            fspec << (k?"*.dat":"*.dic");
+            dir.setNameFilters(fspec);
+            list = dir.entryInfoList();
+            for(int j=0; j<list.length(); j++) {
+                QString canon = dir.canonicalPath() +"/"+ list[j].fileName();
+                if(dir.exists(getCanonicalSansExt(canon)+(k?".idx":".aff")))
+                    newFilesFound(tmp, canon, !k);
+            }
+        }
+    }
+
+    m_langs.clear();
+    langData.clear();
+    // keep only langs which have at least a speller.
+    // hunspell can work without mythes, but not the other way around)
+    for(int i=0; i<tmp.length(); i++){
+        if (tmp[i].dictFilesSansExt!="") {
+            langData.append(tmp[i]);
+            m_langs.append(tmp[i].name);
+            qDebug("%s: [d]%s [t]%s", langData[i].name.toLatin1().data(), langData[i].dictFilesSansExt.toLatin1().data(), langData[i].thesFilesSansExt.toLatin1().data());
+        } else {
+            qDebug("Lang: %s only has a thesaurus, ignoring.", tmp[i].name.toLatin1().data());
+        }
+    }
+
+    m_dictsEnumerated = true;
 }
 
 //dictionaries/thesauri files and availability are detected once when the app loads.
 //QList<LangData> Hunspell_Adapter::langData = createLangData();
 
 Hunspell* Hunspell_Adapter::createNewSpeller(const QString& lang){
-    QString aff=lang+".aff";
-    QString dic=lang+".dic";
+    int i = findLangItem(langData, lang);
+    if(i<0){
+        qDebug("Internal error: requested language '%s' but doesn't exist.", lang.toLatin1().data());
+        return 0;
+    }
+    QString aff=langData[i].dictFilesSansExt+".aff";
+    QString dic=langData[i].dictFilesSansExt+".dic";
     QFileInfo fa(aff);
     QFileInfo fd(dic);
 
@@ -112,8 +248,13 @@ Hunspell* Hunspell_Adapter::createNewSpeller(const QString& lang){
 }
 
 MyThes* Hunspell_Adapter::createNewThesaurus(const QString& lang){
-    QString dat=lang+".dat";
-    QString idx=lang+".idx";
+    int i = findLangItem(langData, lang);
+    if(i<0){
+        qDebug("Internal error: requested language '%s' but doesn't exist.", lang.toLatin1().data());
+        return 0;
+    }
+    QString dat=langData[i].thesFilesSansExt+".dat";
+    QString idx=langData[i].thesFilesSansExt+".idx";
     QFileInfo fd(dat);
     QFileInfo fi(idx);
 
@@ -127,9 +268,10 @@ MyThes* Hunspell_Adapter::createNewThesaurus(const QString& lang){
 }
 
 Hunspell_Adapter::Hunspell_Adapter()
-    :currentLang("NOT AVAILABLE")
-    ,pSpeller(0)
-    ,pThes(0)
+    : currentLang("NOT AVAILABLE")
+    , pSpeller(0)
+    , pThes(0)
+    , m_dictsEnumerated(false)
 {
 /*
     if (getAvailableLanguages().length())
@@ -146,35 +288,12 @@ Hunspell_Adapter::~Hunspell_Adapter(){
       delete pThes;
     pThes=0;
 }
-/*
-QStringList Hunspell_Adapter::searchDictionaries(){
-  QList<DictionaryPtr> m_dics;//should be member?
 
-  //--sudocode:
-
-  for(path in searchPaths)
-  {
-    for each(dic in currentDics=getAllFileNames("*.dic")){
-      if(dic in m_dics || !exists(dic+".aff")) //skip existing names or names with partial files
-        continue;
-
-      m_dics+={path, dic};
-    }
-  }
-
-  return QStringList();
-}
-*/
 
 QStringList Hunspell_Adapter::getAvailableLanguages(){
-/*
-  if(!m_searchedDictionaries){
-    m_searchedDictionaries = true;
-    m_availableDictionaries = getDictionaries();
-  }
-  return m_availableDictionaries;
-*/
-  return QStringList()<<"en_US"<<"en_GB"<<"he_IL";
+    enumerateDictionaryFiles(); // returns immidiately if already enumerated
+    return m_langs;
+  //return QStringList()<<"en_US"<<"en_GB"<<"he_IL";
 }
 
 QString Hunspell_Adapter::getCurrentLanguage(){
