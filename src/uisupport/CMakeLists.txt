@@ -47,19 +47,19 @@ if(CUSTOM_SPELLER)
         speller/speller_qtextedit.cpp
         speller/hunspell_adapter.cpp
 
-        ../ext/hunspell/affentry.cxx
-        ../ext/hunspell/affixmgr.cxx
-        ../ext/hunspell/csutil.cxx
-        ../ext/hunspell/dictmgr.cxx
-        ../ext/hunspell/filemgr.cxx
-        ../ext/hunspell/hashmgr.cxx
-        ../ext/hunspell/hunspell.cxx
-        ../ext/hunspell/hunzip.cxx
-        ../ext/hunspell/phonet.cxx
-        ../ext/hunspell/replist.cxx
-        ../ext/hunspell/suggestmgr.cxx
+        ../../3rdparty/hunspell/affentry.cxx
+        ../../3rdparty/hunspell/affixmgr.cxx
+        ../../3rdparty/hunspell/csutil.cxx
+        ../../3rdparty/hunspell/dictmgr.cxx
+        ../../3rdparty/hunspell/filemgr.cxx
+        ../../3rdparty/hunspell/hashmgr.cxx
+        ../../3rdparty/hunspell/hunspell.cxx
+        ../../3rdparty/hunspell/hunzip.cxx
+        ../../3rdparty/hunspell/phonet.cxx
+        ../../3rdparty/hunspell/replist.cxx
+        ../../3rdparty/hunspell/suggestmgr.cxx
 
-        ../ext/mythes/mythes.cxx
+        ../../3rdparty/mythes/mythes.cxx
     )
     set(MOC_HDRS ${MOC_HDRS}
         speller/speller_qtextedit.h
@@ -67,27 +67,27 @@ if(CUSTOM_SPELLER)
     set(HEADERS ${HEADERS}
         speller/speller_adapter.h
 
-        ../ext/hunspell/affentry.hxx
-        ../ext/hunspell/affixmgr.hxx
-        ../ext/hunspell/atypes.hxx
-        ../ext/hunspell/baseaffix.hxx
-        ../ext/hunspell/config.h
-        ../ext/hunspell/csutil.hxx
-        ../ext/hunspell/dictmgr.hxx
-        ../ext/hunspell/filemgr.hxx
-        ../ext/hunspell/hashmgr.hxx
-        ../ext/hunspell/htypes.hxx
-        ../ext/hunspell/hunspell.h
-        ../ext/hunspell/hunspell.hxx
-        ../ext/hunspell/hunvisapi.h
-        ../ext/hunspell/hunzip.hxx
-        ../ext/hunspell/langnum.hxx
-        ../ext/hunspell/phonet.hxx
-        ../ext/hunspell/replist.hxx
-        ../ext/hunspell/suggestmgr.hxx
-        ../ext/hunspell/w_char.hxx
+        ../../3rdparty/hunspell/affentry.hxx
+        ../../3rdparty/hunspell/affixmgr.hxx
+        ../../3rdparty/hunspell/atypes.hxx
+        ../../3rdparty/hunspell/baseaffix.hxx
+        ../../3rdparty/hunspell/config.h
+        ../../3rdparty/hunspell/csutil.hxx
+        ../../3rdparty/hunspell/dictmgr.hxx
+        ../../3rdparty/hunspell/filemgr.hxx
+        ../../3rdparty/hunspell/hashmgr.hxx
+        ../../3rdparty/hunspell/htypes.hxx
+        ../../3rdparty/hunspell/hunspell.h
+        ../../3rdparty/hunspell/hunspell.hxx
+        ../../3rdparty/hunspell/hunvisapi.h
+        ../../3rdparty/hunspell/hunzip.hxx
+        ../../3rdparty/hunspell/langnum.hxx
+        ../../3rdparty/hunspell/phonet.hxx
+        ../../3rdparty/hunspell/replist.hxx
+        ../../3rdparty/hunspell/suggestmgr.hxx
+        ../../3rdparty/hunspell/w_char.hxx
 
-        ../ext/mythes/mythes.hxx
+        ../../3rdparty/mythes/mythes.hxx
     )
 endif(CUSTOM_SPELLER)
 
