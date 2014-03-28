@@ -1,6 +1,6 @@
 #include "speller_adapter.h"
-#include "../ext/hunspell/hunspell.hxx"
-#include "../ext/mythes/mythes.hxx"
+#include "../../3rdparty/hunspell/hunspell.hxx"
+#include "../../3rdparty/mythes/mythes.hxx"
 
 //Shared<Hunspell_Adapter> SharedSpeller;
 
