@@ -1,0 +1,11 @@
+This directory is a verbatim copy of /hunspell-1.3.2/src/ from the official
+sources at http://hunspell.sourceforge.net/
+
+The following cosmetic-only changes were required to make it compile using
+MinGW32 GCC 4.4.0 (part of Qt SDK 1.2.1 offline package):
+
+1. The text at the end of affentry.cxx was commented using #if 0 ... #endif.
+Added also /* ... */
+
+2. The method 'near' was renamed to 'near1' (declared at replist.hxx, defined
+and used once at replist.cxx)
