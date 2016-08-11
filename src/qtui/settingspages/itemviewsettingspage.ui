@@ -137,7 +137,7 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="label_2">
+            <widget class="QLabel" name="label_1">
              <property name="text">
               <string>Inactive:</string>
              </property>
@@ -161,7 +161,7 @@
             </widget>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="label_3">
+            <widget class="QLabel" name="label_2">
              <property name="text">
               <string>Unread messages:</string>
              </property>
@@ -185,13 +185,37 @@
             </widget>
            </item>
            <item row="3" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>Unread query messages:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="ColorButton" name="unreadQueryBufferColor">
+             <property name="text">
+              <string>...</string>
+             </property>
+             <property name="settingsKey" stdset="0">
+              <string notr="true">/UiStyle/Colors/UnreadQueryBuffer</string>
+             </property>
+             <property name="defaultValue" stdset="0">
+              <color>
+              <red>255</red>
+              <green>128</green>
+              <blue>0</blue>
+              </color>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
             <widget class="QLabel" name="label_4">
              <property name="text">
               <string>Highlight:</string>
              </property>
             </widget>
            </item>
-           <item row="3" column="1">
+           <item row="4" column="1">
             <widget class="ColorButton" name="highlightedBufferColor">
              <property name="text">
               <string>...</string>
@@ -208,14 +232,14 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="0">
+           <item row="5" column="0">
             <widget class="QLabel" name="label_5">
              <property name="text">
               <string>Other activity:</string>
              </property>
             </widget>
            </item>
-           <item row="4" column="1">
+           <item row="5" column="1">
             <widget class="ColorButton" name="activeBufferColor">
              <property name="text">
               <string>...</string>
@@ -409,6 +433,7 @@
   <tabstop>defaultBufferColor</tabstop>
   <tabstop>inactiveBufferColor</tabstop>
   <tabstop>unreadBufferColor</tabstop>
+  <tabstop>unreadQueryBufferColor</tabstop>
   <tabstop>highlightedBufferColor</tabstop>
   <tabstop>activeBufferColor</tabstop>
   <tabstop>bufferViewPreview</tabstop>
