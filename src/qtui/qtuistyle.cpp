@@ -158,6 +158,7 @@ void QtUiStyle::generateSettingsQss() const
             << chatListItemQss("inactive", "InactiveBuffer", uiColors)
             << chatListItemQss("channel-event", "ActiveBuffer", uiColors)
             << chatListItemQss("unread-message", "UnreadBuffer", uiColors)
+            << chatListItemQss("unread-message", "UnreadQueryBuffer", uiColors, "query")
             << chatListItemQss("highlighted", "HighlightedBuffer", uiColors);
     }
 
@@ -215,7 +216,8 @@ QString QtUiStyle::senderQss(int i, UiSettings &settings, const QString &message
 }
 
 
-QString QtUiStyle::chatListItemQss(const QString &state, const QString &key, UiSettings &settings) const
+QString QtUiStyle::chatListItemQss(const QString &state, const QString &key, UiSettings &settings, const QString &type) const
 {
-    return QString("ChatListItem[state=\"%1\"] { foreground: %2; }\n").arg(state, color(key, settings));
+    QString stype = type == "" ? "" : QString(", type=\"%1\"").arg(type);
+    return QString("ChatListItem[state=\"%1\"%2] { foreground: %3; }\n").arg(state, stype, color(key, settings));
 }

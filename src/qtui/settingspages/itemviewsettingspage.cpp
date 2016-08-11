@@ -37,6 +37,7 @@ ItemViewSettingsPage::ItemViewSettingsPage(QWidget *parent)
     _inactiveBufferItem = new QTreeWidgetItem(_networkItem, QStringList(tr("Inactive")));
     _defaultBufferItem = new QTreeWidgetItem(_networkItem, QStringList(tr("Normal")));
     _unreadBufferItem = new QTreeWidgetItem(_networkItem, QStringList(tr("Unread messages")));
+    _unreadQueryBufferItem = new QTreeWidgetItem(_networkItem, QStringList(tr("Unread query messages")));
     _highlightedBufferItem = new QTreeWidgetItem(_networkItem, QStringList(tr("Highlight")));
     _activeBufferItem = new QTreeWidgetItem(_networkItem, QStringList(tr("Other activity")));
 
@@ -77,6 +78,8 @@ void ItemViewSettingsPage::updateBufferViewPreview(QWidget *widget)
         _activeBufferItem->setForeground(0, button->color());
     else if (objName == "unreadBufferColor")
         _unreadBufferItem->setForeground(0, button->color());
+    else if (objName == "unreadQueryBufferColor")
+        _unreadQueryBufferItem->setForeground(0, button->color());
     else if (objName == "highlightedBufferColor")
         _highlightedBufferItem->setForeground(0, button->color());
 }

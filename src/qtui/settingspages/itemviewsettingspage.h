@@ -47,7 +47,7 @@ private:
     Ui::ItemViewSettingsPage ui;
     QSignalMapper *_mapper;
     QTreeWidgetItem *_networkItem, *_defaultBufferItem, *_inactiveBufferItem,
-    *_activeBufferItem, *_unreadBufferItem, *_highlightedBufferItem;
+    *_activeBufferItem, *_unreadBufferItem, *_unreadQueryBufferItem, *_highlightedBufferItem;
 
     inline QString settingsKey() const { return QString("ItemViews"); }
 };

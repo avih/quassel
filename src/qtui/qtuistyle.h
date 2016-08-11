@@ -81,7 +81,7 @@ private:
      */
     QString senderQss(int i, UiSettings &settings, const QString &messageType,
                       bool includeNick = false) const;
-    QString chatListItemQss(const QString &state, const QString &key, UiSettings &settings) const;
+    QString chatListItemQss(const QString &state, const QString &key, UiSettings &settings, const QString &type = "") const;
 };
 
 
