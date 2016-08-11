@@ -1593,11 +1593,13 @@ void MainWin::messagesInserted(const QModelIndex &parent, int start, int end)
         QString contents = idx.data(ChatLineModel::DisplayRole).toString();
         AbstractNotificationBackend::NotificationType type;
 
-        if (bufType == BufferInfo::QueryBuffer && !hasFocus)
+        // Notify about a buffer which is not the current one. hasFocus refers to the window.
+        const bool kStrongNotifiyAlsoWhenFocused = true;  // sound, tray, etc (beyond the highlight)
+        if (bufType == BufferInfo::QueryBuffer && (!hasFocus || kStrongNotifiyAlsoWhenFocused))
             type = AbstractNotificationBackend::PrivMsg;
         else if (bufType == BufferInfo::QueryBuffer && hasFocus)
             type = AbstractNotificationBackend::PrivMsgFocused;
-        else if (flags & Message::Highlight && !hasFocus)
+        else if (flags & Message::Highlight && (!hasFocus || kStrongNotifiyAlsoWhenFocused))
             type = AbstractNotificationBackend::Highlight;
         else
             type = AbstractNotificationBackend::HighlightFocused;
