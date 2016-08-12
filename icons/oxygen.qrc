@@ -61,6 +61,8 @@
     <file>oxygen/22x22/status/security-low.png</file>
     <file>oxygen/22x22/status/user-away.png</file>
     <file>oxygen/22x22/status/security-high.png</file>
+    <file>oxygen/22x22/status/quassel-message.png</file>
+    <file>oxygen/22x22/status/quassel-inactive.png</file>
     <file>oxygen/32x32/actions/go-next-view.png</file>
     <file>oxygen/32x32/actions/go-up.png</file>
     <file>oxygen/32x32/actions/list-add.png</file>
@@ -121,6 +123,8 @@
     <file>oxygen/32x32/status/dialog-information.png</file>
     <file>oxygen/32x32/status/security-high.png</file>
     <file>oxygen/32x32/status/security-low.png</file>
+    <file>oxygen/32x32/status/quassel-message.png</file>
+    <file>oxygen/32x32/status/quassel-inactive.png</file>
     <file>oxygen/16x16/actions/edit-delete.png</file>
     <file>oxygen/16x16/actions/im-user-offline.png</file>
     <file>oxygen/16x16/actions/view-fullscreen.png</file>
@@ -181,6 +185,8 @@
     <file>oxygen/16x16/status/user-away.png</file>
     <file>oxygen/16x16/status/security-high.png</file>
     <file>oxygen/16x16/status/dialog-information.png</file>
+    <file>oxygen/16x16/status/quassel-message.png</file>
+    <file>oxygen/16x16/status/quassel-inactive.png</file>
     <file>oxygen/64x64/actions/list-add-user.png</file>
     <file>oxygen/64x64/actions/im-user-away.png</file>
     <file>oxygen/64x64/actions/configure.png</file>
@@ -203,6 +209,8 @@
     <file>oxygen/64x64/status/security-low.png</file>
     <file>oxygen/64x64/status/user-away.png</file>
     <file>oxygen/64x64/status/dialog-information.png</file>
+    <file>oxygen/64x64/status/quassel-message.png</file>
+    <file>oxygen/64x64/status/quassel-inactive.png</file>
     <file>oxygen/128x128/actions/mail-message-new.png</file>
     <file>oxygen/128x128/actions/im-ban-kick-user.png</file>
     <file>oxygen/128x128/actions/document-edit.png</file>
@@ -225,6 +233,8 @@
     <file>oxygen/128x128/status/security-high.png</file>
     <file>oxygen/128x128/status/security-low.png</file>
     <file>oxygen/128x128/status/dialog-information.png</file>
+    <file>oxygen/128x128/status/quassel-message.png</file>
+    <file>oxygen/128x128/status/quassel-inactive.png</file>
     <file>oxygen/48x48/actions/document-open.png</file>
     <file>oxygen/48x48/actions/configure-shortcuts.png</file>
     <file>oxygen/48x48/actions/go-next.png</file>
@@ -285,6 +295,8 @@
     <file>oxygen/48x48/status/dialog-information.png</file>
     <file>oxygen/48x48/status/security-high.png</file>
     <file>oxygen/48x48/status/security-low.png</file>
+    <file alias="quassel-message.png">oxygen/48x48/status/quassel-message.png</file>
+    <file alias="quassel-inactive.png">oxygen/48x48/status/quassel-inactive.png</file>
     <file>oxygen/256x256/devices/network-wired.png</file>
     <file>oxygen/256x256/apps/quassel.png</file>
   </qresource>
