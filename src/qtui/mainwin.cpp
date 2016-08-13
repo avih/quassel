@@ -1567,7 +1567,11 @@ void MainWin::messagesInserted(const QModelIndex &parent, int start, int end)
         BufferInfo::Type bufType = Client::networkModel()->bufferType(bufId);
 
         // check if bufferId belongs to the shown chatlists
-        if (!(Client::bufferViewOverlay()->bufferIds().contains(bufId) ||
+        // But don't check with query buffers because there's a timing issue where on the first
+        // query message from a user, we arrive here before the buffer is created at the view,
+        // which otherwise ends up without a notification. We later still filter by ignored etc.
+        if (bufType != BufferInfo::QueryBuffer &&
+            !(Client::bufferViewOverlay()->bufferIds().contains(bufId) ||
               Client::bufferViewOverlay()->tempRemovedBufferIds().contains(bufId)))
             continue;
 
