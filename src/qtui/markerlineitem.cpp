@@ -47,11 +47,17 @@ void MarkerLineItem::styleChanged()
 {
     _brush = QtUi::style()->brush(UiStyle::MarkerLine);
 
+    // The comment below seems incorrect. On windows, it seems that the marker is a gradient, goes from solid (top)
+    // to transparent, renders _behind_ the text, and also the units seems off, e.g. with 10pt font, ->lineSpacing() is 16
+    // (interestingly, so is ->height()) and the marker still renders at 1-2 px height. - avih
+    // Allow constant multiplier for thickness.
+    const int kHfactor = 2;  // factor of 2 -> 3px tall gradient (10pt font + windows/fusion theme, on windows).
+
     // if this is a solid color, we assume 1px because wesurely  don't surely don't want to fill the entire chatline.
     // else, use the height of a single line of text to play around with gradients etc.
-    qreal height = 1.;
+    qreal height = 1. * kHfactor;
     if (_brush.style() != Qt::SolidPattern)
-        height = QtUi::style()->fontMetrics(QtUiStyle::PlainMsg, 0)->lineSpacing();
+        height = QtUi::style()->fontMetrics(QtUiStyle::PlainMsg, 0)->lineSpacing() * kHfactor;
 
     prepareGeometryChange();
     _boundingRect = QRectF(0, 0, scene() ? scene()->width() : 100, height);
