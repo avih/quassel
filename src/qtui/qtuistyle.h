@@ -47,7 +47,7 @@ private:
 
     QString msgTypeQss(const QString &msgType, const QString &key, UiSettings &settings) const;
     QString senderQss(int i, UiSettings &settings) const;
-    QString chatListItemQss(const QString &state, const QString &key, UiSettings &settings, const QString &type = "") const;
+    QString chatListItemQss(const QString &selector, const QString &key, UiSettings &settings) const;
 };
 
 
