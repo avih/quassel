@@ -155,11 +155,11 @@ void QtUiStyle::generateSettingsQss() const
     if (uiColors.value("UseBufferViewColors").toBool()) {
         out << "\n// BufferView Colors\n"
             << "ChatListItem { foreground: " << color("DefaultBuffer", uiColors) << "; }\n"
-            << chatListItemQss("inactive", "InactiveBuffer", uiColors)
-            << chatListItemQss("channel-event", "ActiveBuffer", uiColors)
-            << chatListItemQss("unread-message", "UnreadBuffer", uiColors)
-            << chatListItemQss("unread-message", "UnreadQueryBuffer", uiColors, "query")
-            << chatListItemQss("highlighted", "HighlightedBuffer", uiColors);
+            << chatListItemQss("state='inactive'", "InactiveBuffer", uiColors)
+            << chatListItemQss("state='channel-event'", "ActiveBuffer", uiColors)
+            << chatListItemQss("state='unread-message'", "UnreadBuffer", uiColors)
+            << chatListItemQss("state='unread-message', type='query'", "UnreadQueryBuffer", uiColors)
+            << chatListItemQss("state='highlighted'", "HighlightedBuffer", uiColors);
     }
 
     if (uiColors.value("UseNickViewColors").toBool()) {
@@ -192,7 +192,6 @@ QString QtUiStyle::fontDescription(const QFont &font) const
     return desc;
 }
 
-
 QString QtUiStyle::msgTypeQss(const QString &msgType, const QString &key, UiSettings &settings) const
 {
     return QString("ChatLine#%1 { foreground: %2; }\n").arg(msgType, color(key, settings));
@@ -216,8 +215,8 @@ QString QtUiStyle::senderQss(int i, UiSettings &settings, const QString &message
 }
 
 
-QString QtUiStyle::chatListItemQss(const QString &state, const QString &key, UiSettings &settings, const QString &type) const
+// For convinience, also replaces all single quotes with double quotes (qss requires double quotes)
+QString QtUiStyle::chatListItemQss(const QString &selector, const QString &key, UiSettings &settings) const
 {
-    QString stype = type == "" ? "" : QString(", type=\"%1\"").arg(type);
-    return QString("ChatListItem[state=\"%1\"%2] { foreground: %3; }\n").arg(state, stype, color(key, settings));
+    return QString("ChatListItem[%1] { foreground: %3; }\n").arg(selector, color(key, settings)).replace("'", "\"");
 }
