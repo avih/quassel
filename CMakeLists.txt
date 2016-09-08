@@ -546,29 +546,28 @@ endif()
 # OFF    : Don't use the custom speller (could end up without a speller)
 # FORCED : Use the custom speller even if other spellers are available (so don't use them)
 #
-# Note: HAVE_SPELLER -> we need speller controls (checkbox) - for KDE4 or CUSTOM_SPELLER
+# Note: HAVE_SPELLER -> we have speller and its GUI (checkbox[es]) - for KDE or CUSTOM_SPELLER
 #       CUSTOM_SPELLER -> we use the fallback speller (which also has a thesaurus)
-#       With KF5 quassel doesn't use checkboxes and leaves it to the framework, so no HAVE_SPELLER
-#       (buf if CUSTOM_SPELLER is FORCED then we still HAVE_SPELLER and use it instead of KF5's)
+#       In the future hopefully KF5Sonnet speller will also be an option.
 
 option(CUSTOM_SPELLER "Internal speller/thesauri (ON|OFF|FORCED = fallback/never/always)" ON)
 add_feature_info(CUSTOM_SPELLER CUSTOM_SPELLER "Internal speller/thesauri")
 
 # CUSTOM_SPELLER: ON/FORCED are truthy. OFF is falsy
-if(CUSTOM_SPELLER STREQUAL FORCED OR CUSTOM_SPELLER AND NOT HAVE_KDE4 AND NOT HAVE_KF5)
+if(CUSTOM_SPELLER STREQUAL FORCED OR CUSTOM_SPELLER AND NOT HAVE_KDE)
     set(CUSTOM_SPELLER 1)
     add_definitions(-DCUSTOM_SPELLER)
     add_definitions(-DBUILDING_LIBHUNSPELL)
-else(CUSTOM_SPELLER STREQUAL FORCED OR CUSTOM_SPELLER AND NOT HAVE_KDE4 AND NOT HAVE_KF5)
+else()
     remove_definitions(-DCUSTOM_SPELLER)
     set(CUSTOM_SPELLER OFF)
-endif(CUSTOM_SPELLER STREQUAL FORCED OR CUSTOM_SPELLER AND NOT HAVE_KDE4 AND NOT HAVE_KF5)
+endif()
 
-if(HAVE_KDE4 OR CUSTOM_SPELLER)
+if(HAVE_KDE OR CUSTOM_SPELLER)
     add_definitions(-DHAVE_SPELLER)
-else(HAVE_KDE4 OR CUSTOM_SPELLER)
+else()
     remove_definitions(-DHAVE_SPELLER)
-endif(HAVE_KDE4 OR CUSTOM_SPELLER)
+endif()
 
 
 # This needs to come after setting up KDE integration, so we can use KDE-specific paths
