@@ -190,7 +190,7 @@ In this mode no separate status buffer is displayed.</string>
         </item>
         <item>
          <property name="text">
-          <string>Highlight</string>
+          <string>Highlight or New Query Message</string>
          </property>
         </item>
        </widget>

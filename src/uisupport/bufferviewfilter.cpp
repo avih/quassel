@@ -372,6 +372,14 @@ bool BufferViewFilter::filterAcceptBuffer(const QModelIndex &source_bufferIndex)
     if (config()->hideInactiveBuffers() && !sourceModel()->data(source_bufferIndex, NetworkModel::ItemActiveRole).toBool() && activityLevel <= BufferInfo::OtherActivity)
         return false;
 
+    const bool newQueryAsIfHighlight = true;
+    if (newQueryAsIfHighlight &&
+        (bufferType & BufferInfo::QueryBuffer) &&
+        (activityLevel & BufferInfo::NewMessage))
+    {
+        activityLevel |= BufferInfo::Highlight;
+    }
+
     if (config()->minimumActivity() > activityLevel)
         return false;
 
